@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tina Chatbot</title>
+  <style>
+    /* 
+      Overall Layout 
+      Dark background to mimic ChatGPT's style
+    */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #343541; /* ChatGPT-like dark background */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      color: #ffffff;
+      margin: 20px 0 10px;
+    }
+
+    /* 
+      Container for the entire chat area
+      Using a max-width for readability
+    */
+    #appContainer {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 800px;
+      height: 90vh; /* Fill most of the screen height */
+      margin: 0 auto;
+      background-color: #444654; /* Slightly lighter than the outer background */
+      border: 1px solid #666;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    /* 
+      Chat area 
+      Scrollable container for messages
+    */
+    #chatContainer {
+      flex: 1; /* Expand to fill the available vertical space */
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 
+      Each message in the chat log 
+    */
+    .message {
+      margin-bottom: 16px;
+      border-radius: 8px;
+      padding: 12px 16px;
+      max-width: 75%;
+      white-space: pre-wrap; /* Preserve line breaks */
+      word-wrap: break-word;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* 
+      Bot messages 
+      Left-aligned, lighter background 
+    */
+    .bot {
+      align-self: flex-start;
+      background-color: #40414f;
+      color: #f0f0f0;
+      border-top-left-radius: 0;
+    }
+
+    /* 
+      User messages 
+      Right-aligned, darker bubble 
+    */
+    .user {
+      align-self: flex-end;
+      background-color: #2b2c35;
+      color: #fff;
+      border-top-right-radius: 0;
+      text-align: right;
+    }
+
+    /* 
+      Style images within messages 
+    */
+    .message img {
+      display: block;
+      max-width: 100%;
+      margin-top: 8px;
+      border-radius: 4px;
+    }
+
+    /* 
+      Input area at the bottom 
+    */
+    #inputArea {
+      display: flex;
+      flex-direction: row;
+      padding: 10px;
+      gap: 6px;
+      background-color: #40414f;
+    }
+
+    #messageInput {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #666;
+      border-radius: 4px;
+      background-color: #565869;
+      color: #fff;
+    }
+
+    #imageInput {
+      width: 150px;
+      color: #fff;
+    }
+
+    #sendButton {
+      background-color: #19c37d; /* ChatGPT green accent */
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      padding: 0 16px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    #sendButton:hover {
+      background-color: #15a46a;
+    }
+
+    /* 
+      Custom scrollbars (optional)
+    */
+    #chatContainer::-webkit-scrollbar {
+      width: 10px;
+    }
+    #chatContainer::-webkit-scrollbar-track {
+      background-color: #343541;
+    }
+    #chatContainer::-webkit-scrollbar-thumb {
+      background-color: #666;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tina Chatbot</h1>
+
+  <div id="appContainer">
+    <div id="chatContainer"></div>
+    <!-- Input area -->
+    <div id="inputArea">
+      <input type="text" id="messageInput" placeholder="Type your message..." />
+      <input type="file" id="imageInput" accept="image/*" />
+      <button id="sendButton">Send</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
