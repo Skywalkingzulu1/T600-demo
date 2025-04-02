@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Search API Controller</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #container { display: flex; gap: 20px; }
+        #controls { width: 400px; }
+        #resultsContainer { max-height: 600px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; }
+        button, input, select { margin: 5px 0; width: 100%; padding: 8px; }
+        .section { margin-bottom: 15px; padding: 10px; background: #f0f0f0; border-radius: 5px; }
+        .status { padding: 5px; margin: 5px 0; border-radius: 3px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .result-item { margin: 10px 0; padding: 10px; border-bottom: 1px solid #eee; }
+        #log { height: 200px; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin-top: 10px; background: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>Google Search API Controller</h1>
+    <div id="container">
+        <div id="controls">
+            <div class="section">
+                <h3>API Configuration</h3>
+                <input type="text" id="apiKey" placeholder="Enter SerpApi Key" value="">
+                <small>Get your free API key from <a href="https://serpapi.com" target="_blank">serpapi.com</a></small>
+            </div>
+            <div class="section">
+                <h3>Google Search</h3>
+                <input type="text" id="searchQuery" placeholder="Enter search query" value="web automation">
+                <button onclick="searchGoogle()">Search with SerpApi</button>
+                <div id="searchOptions">
+                    <label><input type="checkbox" id="autoExpand"> Auto-expand results</label>
+                </div>
+            </div>
+            <div class="section">
+                <h3>Search Results</h3>
+                <div id="resultsContainer"></div>
+                <button onclick="clearResults()">Clear Results</button>
+            </div>
+            <div class="section">
+                <h3>Status</h3>
+                <div id="status" class="status info">Ready</div>
+            </div>
+            <div class="section">
+                <h3>Log</h3>
+                <div id="log"></div>
+                <button onclick="clearLog()">Clear Log</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const apiKeyInput = document.getElementById('apiKey');
+        const searchQueryInput = document.getElementById('searchQuery');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const statusElement = document.getElementById('status');
+        const logElement = document.getElementById('log');
+        let currentResults = [];
+
+        // Load API key from localStorage if available
+        apiKeyInput.value = localStorage.getItem('serpApiKey') || '';
+        apiKeyInput.addEventListener('input', (e) => {
+            localStorage.setItem('serpApiKey', e.target.value);
+        });
+
+        function searchGoogle() {
+            const apiKey = apiKeyInput.value.trim();
+            const query = searchQueryInput.value.trim();
+            
+            if (!apiKey) {
+                updateStatus('Please enter your SerpApi key', 'error');
+                return;
+            }
+            
+            if (!query) {
+                updateStatus('Please enter a search query', 'error');
+                return;
+            }
+
+            updateStatus('Performing search...', 'info');
+            clearResults();
+
+            const params = {
+                api_key: apiKey,
+                q: query,
+                engine: 'google',
+                google_domain: 'google.com',
+                device: 'desktop',
+                num: 10
+            };
+
+            fetch(`https://serpapi.com/search?${new URLSearchParams(params)}`)
+                .then(response => response.json())
+                .then(data => handleApiResponse(data))
+                .catch(error => {
+                    updateStatus('API request failed', 'error');
+                    log(`[ERROR] ${error.message}`);
+                });
+        }
+
+        function handleApiResponse(data) {
+            if (data.error) {
+                updateStatus(`API Error: ${data.error}`, 'error');
+                log(`[API ERROR] ${JSON.stringify(data)}`);
+                return;
+            }
+
+            currentResults = data.organic_results || [];
+            displayResults(currentResults);
+            updateStatus(`Found ${currentResults.length} results`, 'success');
+            log(`[API] Received ${currentResults.length} organic results`);
+        }
+
+        function displayResults(results) {
+            resultsContainer.innerHTML = '';
+            
+            results.forEach((result, index) => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `
+                    <h4>${index + 1}. ${result.title}</h4>
+                    <p><a href="${result.link}" target="_blank">${result.link}</a></p>
+                    <p>${result.snippet || 'No snippet available'}</p>
+                    <button onclick="openResult(${index})">Open Result</button>
+                `;
+                resultsContainer.appendChild(item);
+            });
+        }
+
+        function openResult(index) {
+            const result = currentResults[index];
+            if (result && result.link) {
+                window.open(result.link, '_blank');
+                log(`Opened result: ${result.title}`);
+            }
+        }
+
+        function clearResults() {
+            currentResults = [];
+            resultsContainer.innerHTML = '';
+            updateStatus('Results cleared', 'info');
+        }
+
+        function updateStatus(message, type = 'info') {
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        function clearLog() {
+            logElement.innerHTML = '';
+            log('[SYSTEM] Log cleared');
+        }
+
+        function log(message) {
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logElement.appendChild(entry);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+    </script>
+</body>
+</html>
